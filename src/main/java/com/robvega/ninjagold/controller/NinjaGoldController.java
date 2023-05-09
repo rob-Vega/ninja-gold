@@ -1,11 +1,13 @@
 package com.robvega.ninjagold.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.servlet.http.HttpSession;
@@ -14,13 +16,19 @@ import jakarta.servlet.http.HttpSession;
 public class NinjaGoldController {
 	Random random = new Random();
 	
+	// private methods
+	private String dateFormat() {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("(MMMM dd yyyy HH:mm a)");
+		return simpleDateFormat.format(new Date());
+	}
+	
 	private void addRecord(String place, int gold, HttpSession session) {
 		ArrayList<String> records = (ArrayList<String>) session.getAttribute("records");
 		
 		if (place.equals("spa")) {
-			records.add(String.format("You entered a %s and expended %d gold. " + new Date(), place, gold));
+			records.add(String.format("You entered a %s and expended %d gold. " + dateFormat(), place, gold));
 		} else {
-			records.add(String.format("You entered a %s and earned %d gold. " + new Date(), place, gold));
+			records.add(String.format("You entered a %s and earned %d gold. " + dateFormat(), place, gold));
 		}
 	
 		session.setAttribute("records", records);	
@@ -30,9 +38,9 @@ public class NinjaGoldController {
 		ArrayList<String> records = (ArrayList<String>) session.getAttribute("records");
 		
 		if(hasWon) {
-			records.add(String.format("You entered a %s and earned %d gold. " + new Date(), place, gold));
+			records.add(String.format("You entered a %s and earned %d gold. " + dateFormat(), place, gold));
 		} else {
-			records.add(String.format("You entered a %s and lost %d gold, Ouch. " + new Date(), place, gold));
+			records.add(String.format("You entered a %s and lost %d gold, Ouch. " + dateFormat(), place, gold));
 		}
 	
 		session.setAttribute("records", records);	
@@ -48,6 +56,7 @@ public class NinjaGoldController {
 		session.setAttribute("gold", currentGold - gold);
 	}
 	
+	// routes
 	@GetMapping("/")
 	public String index(HttpSession session) {
 		if(session.isNew()) {
@@ -66,6 +75,12 @@ public class NinjaGoldController {
 	@GetMapping("/prison")
 	public String prison() {
 		return "prison.jsp";
+	}
+	
+	@PostMapping("/gold/{place}")
+	public String gold(@PathVariable("place") String place) {
+		System.out.println(place);
+		return "redirect:/";
 	}
 	
 	@PostMapping("/farm")
